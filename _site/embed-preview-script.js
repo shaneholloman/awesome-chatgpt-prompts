@@ -177,6 +177,11 @@ class EmbedPreview {
         if (copyButton) {
             copyButton.addEventListener('click', () => this.handleCopy());
         }
+        
+        const editButton = document.getElementById('edit-button');
+        if (editButton) {
+            editButton.addEventListener('click', () => this.handleEdit());
+        }
     }
     
     render() {
@@ -277,7 +282,7 @@ class EmbedPreview {
     
     createSettingPill(text, type) {
         const pill = document.createElement('div');
-        pill.className = 'px-3 py-2 rounded-full text-xs font-medium flex items-center gap-1.5';
+        pill.className = 'rounded-full text-xs font-medium flex items-center gap-1.5';
         
         let icon = '';
         
@@ -285,13 +290,13 @@ class EmbedPreview {
         if (type === 'mode') {
             // Mode pill keeps the background
             if (this.isDarkMode) {
-                pill.className += ' bg-dynamic-primary/20 text-dynamic-foreground border border-dynamic-primary/30';
+                pill.className += ' px-3 py-2 bg-dynamic-primary/20 text-dynamic-foreground border border-dynamic-primary/30';
             } else {
-                pill.className += ' bg-dynamic-primary/10 text-dynamic-foreground border border-dynamic-primary/20';
+                pill.className += ' px-3 py-2 bg-dynamic-primary/10 text-dynamic-foreground border border-dynamic-primary/20';
             }
         } else {
             // Model, thinking, and max pills only have text color
-            pill.className += ' text-dynamic-primary';
+            pill.className += ' pl-1 text-dynamic-primary';
         }
         
         switch (type) {
@@ -351,6 +356,30 @@ class EmbedPreview {
         
         await this.copyToClipboard(this.config.prompt);
         this.showNotification('Prompt copied to clipboard!');
+    }
+    
+    handleEdit() {
+        // Get current query string
+        const queryString = window.location.search;
+        
+        // Get current URL path parts
+        const pathParts = window.location.pathname.split('/');
+        
+        // Find index of 'embed-preview' and replace with 'embed'
+        const embedPreviewIndex = pathParts.findIndex(part => part === 'embed-preview');
+        if (embedPreviewIndex !== -1) {
+            pathParts[embedPreviewIndex] = 'embed';
+        } else {
+            // Fallback: just append /embed/ if embed-preview not found
+            pathParts.push('embed');
+        }
+        
+        // Construct new URL
+        const newPath = pathParts.join('/');
+        const newUrl = window.location.origin + newPath + queryString;
+        
+        // Open in new tab
+        window.open(newUrl, '_blank');
     }
     
     async copyToClipboard(text) {
